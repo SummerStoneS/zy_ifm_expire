@@ -17,7 +17,7 @@ delete_items = ["is_loan", "current_ledger_bal",
                 "month1_aum_change", "month3_aum_change", "three_month_ledger_over_year", "three_month_ledger_over_six"]
 
 
-model_variables = pd.read_excel("config/final_columns_240.xlsx")["name"].tolist()
+model_variables = pd.read_excel("./config/final_columns_240.xlsx")["name"].tolist()
 
 # standardizedVariables = [values["name"] for _, values in variable_list.iterrows()
 #                          if re.search(r'次数|时长|变化', values["变量含义"])].append(["bank_year", "prdt_hist_hold"])
@@ -29,11 +29,59 @@ is_buy_productType = ["last_three_month_is_buy_tda", "last_three_month_is_buy_if
                       "last_three_month_is_buy_jj",	"last_three_month_is_buy_insure"]
 yesno_columns = customerType + is_buy_productType
 
-final_columns = pd.read_excel("config/tranX.xlsx")["name"].tolist()
-logVariables = pd.read_excel("config/tranX.xlsx", sheet_name="log")["name"].tolist()
+# logVariables = [values["name"] for _, values in variable_list.iterrows()
+#                 if re.search(r'余额|金额|AUM$', values["变量含义"])]
 
-categoricals = pd.read_excel("config/tranX.xlsx", sheet_name="categorical")["name"].tolist()
-features_with_y = pd.read_excel("config/tranX.xlsx", sheet_name="before_y")["name"].tolist()
+cluster_x = [
+             # 产品活跃度
+             "NumofProductRecentBuy",
+             "prdt_hist_hold",
+             "mobile_bank_cnt_12",
+             "is_hist_risk_prdt",
+             # 资产雄厚
+             "month6_aum_avg",
+             "month12_aum_avg",
+             # 资金下滑严重度
+             "last_six_month_d_max_tran_amt_over_aumavg",
+             "last_six_month_d_max_tran_amt_over_avg_amt_per_tran",
+             "last_six_month_c_max_tran_amt",
+             "cross_bank_amt_per_tran_3",
+             "consume_amt_1_12",
+             # 理财
+             "cfm_compare_aum_1",      # 过去一个月理财占AUM比
+             "cfm_compare_aum_12",
+             "ifm_sum_amt_avg",        # 历史上理财平均最低起买金额
+             "ifm_avg_tran_amt",       # 历史理财笔均金额
+             "ifm_days_avg",           # 历史上理财平均期限
+             "ifm_guest_rate_avg",     # 历史理财平均利率
+             "ifm_year_count",         # 近一年理财交易次数
+             "ifm_year_sum",           # 近一年理财交易金额
+             "last_three_month_is_buy_ifm", # 过去三个月是否买理财
+             # 定期
+             "deposit_compare_aum_1",  # 过去一个月储蓄占aum比
+             "deposit_compare_aum_12",
+             "fix_days_avg",           # 历史定期平均期限
+             "fix_sum_amt_avg",        # 历史定期笔均金额
+             "interest_rate_avg",      # 历史上定期平均利率
+             "fix_rate_avg_12m",       # 过去12个月平均利率
+             "last_12m_fix_term_avg",  # 过去12个月定期平均期限
+             "last_12m_fix_buy_cnt",   # 过去12个月定期购买次数
+             "last_12m_fix_buy_amt",   # 过去12个月定期金额
+             # 可用资金
+             "cur_1m_compare_aum_rate",
+             "cur_12m_compare_aum_rate",
+             "expire_fix_ifm_acct_amt_over_aum",
+             "fix_ifm_acct_amt",
+             # 其他
+             "bank_year",
+             "age",
+             "gender",
+             "is_salary",
+             "last_one_year_avg_df_amt"
+             ]
+
+churn_columns = pd.read_excel("config/tranX.xlsx")["name"].tolist()
+cluster_columns = pd.read_excel("config/cluster_columns.xlsx")["name"].tolist()
 
 params = {
     "delete_items": delete_items,
@@ -41,20 +89,10 @@ params = {
     "yesno_columns": customerType + is_buy_productType,
     "all_variables_X_y": model_variables,                   # 最初的流失模型240个标签，最早
     "customerType": customerType,
-    "all_features": final_columns,                  # 最终加上理财标签，和post 名单标签 377
-    "log_variables": logVariables,
-    "categoricals": categoricals,
-    "features_before_y_define": features_with_y
+    "downsale_all_columns": churn_columns,                  # 最终加上理财标签，和post 名单标签 377
+    "pre_cluster_x": cluster_x,                             # 用于聚类的最原始字段
+    "cluster_x": cluster_columns
 }
-
-
-# 每个类别的recall阈值
-alpha_dict = {"y1_up_y2_1": 0.62,
-              "y1_up_y2_0": 0.66,
-              "y1_even_y2_1": 0.67,
-              "y1_even_y2_0": 0.67,
-              "y1_down_y2_1": 0.73,
-              "y1_down_y2_0": 0.73}
 
 if __name__ == '__main__':
 

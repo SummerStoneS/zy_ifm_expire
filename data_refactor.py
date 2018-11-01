@@ -244,20 +244,10 @@ def process_historical_transaction(history_transaction_data):
     new_data["month1_d_max_over_12aum_avg"] = data["last_one_month_d_max_tran_amt"] / (data["month12_aum_avg"] + 0.1)
     new_data["expire_fix_ifm_acct_amt_over_aum"] = data["fix_ifm_acct_amt"] / (data["month12_aum_avg"] + 0.1)
     amt_columns = ["ifm_recent2m_withdraw_amt", "ifm_recent2m_expire_amt", "fix_recent2m_withdraw_amt",
-                   "fix_recent2m_expire_amt", "fix_ifm_future3m_expire_amt",
-                   "fix_future45d_expire_amt", "ifm_future45d_expire_amt"]
-
+                   "fix_recent2m_expire_amt", "fix_ifm_future3m_expire_amt"]
     for col in amt_columns:
         new_data[col + "_over_aum6"] = data[col] / (data["month6_aum_avg"] + 0.1)
 
-    new_data["last_15d_c_amt_per_tran"] = data["last_fifteen_day_c_tran_amt"] / (data["last_fifteen_day_c_tran_count"]+ 0.1)
-    new_data["last_15d_d_amt_per_tran"] = data["last_fifteen_day_d_tran_amt"] / (data["last_fifteen_day_d_tran_count"] + 0.1)
-    new_data["last_15d_6m_c_amt"] = data["last_fifteen_day_c_tran_amt"] / (data["last_six_month_c_tran_amt"]+0.1)
-    new_data["last_15d_6m_d_amt"] = data["last_fifteen_day_d_tran_amt"] / (data["last_six_month_d_tran_amt"] + 0.1)
-    new_data["last_15d_6m_c_cnt"] = data["last_fifteen_day_c_tran_count"] / (data["last_six_month_c_tran_count"]+0.1)
-    new_data["last_15d_6m_d_cnt"] = data["last_fifteen_day_d_tran_count"] / (data["last_six_month_d_tran_count"] + 0.1)
-    new_data["last_15d_1m_pmbs_login_count"] = data["last_fifteen_days_pmbs_login_count"] / \
-                                               (data["last_one_month_pmbs_login_count"]+0.1)
     return new_data
 
 
@@ -376,7 +366,6 @@ def bin_columns(data, columns):
         data = pd.concat([data, bin_column], axis=1)
         del data[column]
     return data
-
 
 
 def delete_item(data, delete_columns):

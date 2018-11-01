@@ -17,18 +17,14 @@ def delete_columns(data, del_items):
     return data
 
 
-def parse_yymmdd(date, period=""):
+def parse_yymmdd(date):
     if isinstance(date, (np.float64, float)):
         if np.isnan(date):
             return np.nan
         datee = str(int(date))
         datee = datetime.datetime.strptime(datee, '%Y%m%d')
-        if not period:
-            days = (datetime.datetime.now()-datee).days
-            days /= 365
-        else:
-            forecast_date = datetime.datetime.strptime(period, '%Y%m%d')
-            days = (datee - forecast_date).days
+        days = (datetime.datetime(2018, 6, 30)-datee).days
+        days /= 365
         return days
 
 
@@ -106,9 +102,6 @@ class HistorydataManager:
 def process_history_new_ifm_fix_features(data):
     data["is_hist_risk_prdt"] = data["is_hist_risk_prdt"].replace({"Y": 1, "N": 0})
     data = process_ifm_manager(data)
-    amt_cols = ["ifm_expire_amt"]
-    for col in amt_cols:
-        data[col + "_over_aum6"] = data[col] / data["month6_aum_avg"] + 0.1
     processor = HistorydataManager(data, ['1m', '3m', '6m', '12m'])
     processor.replace_null_with_zero(("cur", "compare_aum_rate"))
     processor.cal_amt_over_cnt([["last", ("fix_buy_amt", "fix_buy_cnt")], ["next", ("maturity_bal", "maturity_cnt")]])
